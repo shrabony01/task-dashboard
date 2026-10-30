@@ -17,26 +17,29 @@ export const TaskList: React.FC<TaskListProps> = ({
   onEdit,
   onReorder,
 }) => {
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
 
-  const handleDragStart = (_: React.DragEvent<HTMLDivElement>, index: number) => {
-    setDraggedIndex(index);
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    setDraggedIdx(index);
+    e.dataTransfer.setData('text/plain', `${index}`);
+    e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault(); // Necessary to allow dropping
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetIndex: number) => {
     e.preventDefault();
-    if (draggedIndex === null || draggedIndex === index) return;
+    if (draggedIdx === null || draggedIdx === targetIndex) return;
 
-    const updatedTasks = [...tasks];
-    const [draggedItem] = updatedTasks.splice(draggedIndex, 1);
-    updatedTasks.splice(index, 0, draggedItem);
+    const listCopy = [...tasks];
+    const [movedItem] = listCopy.splice(draggedIdx, 1);
+    listCopy.splice(targetIndex, 0, movedItem);
 
-    setDraggedIndex(index);
-    onReorder(updatedTasks);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
+    setDraggedIdx(null);
+    onReorder(listCopy);
   };
 
   if (tasks.length === 0) {
@@ -56,17 +59,25 @@ export const TaskList: React.FC<TaskListProps> = ({
   return (
     <div className="space-y-1">
       {tasks.map((task, index) => (
-        <TaskItem
+        <div
           key={task.id}
-          task={task}
-          index={index}
-          onDelete={onDelete}
-          onStatusChange={onStatusChange}
-          onEdit={onEdit}
-          onDragStart={handleDragStart}
+          draggable
+          onDragStart={(e) => handleDragStart(e, index)}
           onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-        />
+          onDrop={(e) => handleDrop(e, index)}
+          className="transition-transform duration-150"
+        >
+          <TaskItem
+            task={task}
+            index={index}
+            onDelete={onDelete}
+            onStatusChange={onStatusChange}
+            onEdit={onEdit}
+            onDragStart={() => {}}
+            onDragEnter={() => {}}
+            onDragEnd={() => {}}
+          />
+        </div>
       ))}
     </div>
   );

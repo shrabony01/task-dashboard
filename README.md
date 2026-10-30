@@ -1,32 +1,17 @@
-# React + TypeScript + Vite
+## Task Management Dashboard SBA-9
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Hi! This is my Skills-Based Assessment (SBA) submission for the React & TypeScript module. I built an interactive Task Management Dashboard designed to handle everyday task tracking with responsive UI feedback, controlled form validations, dynamic filtering, drag-and-drop reordering, and browser storage persistence.
 
-Currently, two official plugins are available:
+## What the Application Does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Task Overview & Metrics: Real-time summary cards at the top calculating total tasks, active tasks, completed items, and overdue work alongside a completion progress bar.
 
-## React Compiler
+Form with Real-Time Feedback: A controlled form component that validates inputs (title length, description restrictions, and due date selection) before allowing submissions. It also supports editing existing tasks seamlessly.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Dynamic Search & Multi-Level Filtering: Search tasks on the fly with text matching, or filter down by status (todo, in-progress, completed) and priority (low, medium, high).
 
-## Expanding the Oxlint configuration
+Drag-and-Drop Task Reordering: Built with native HTML5 drag events so tasks can be rearranged visually without third-party libraries.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+Data Persistence & Portability: Tasks are automatically saved to localStorage. You can also export your current task list as a .json backup file and import previously saved files directly into the UI.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Light & Dark Theme: Toggle button in the header that switches 

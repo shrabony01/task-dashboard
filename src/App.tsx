@@ -82,7 +82,10 @@ export const App: React.FC = () => {
   };
 
   const handleReorder = (reorderedTasks: Task[]) => {
-    // When reordering filtered views, map changes back to the root task list
+    // 1. Switch sort mode to 'custom' so the sort algorithm does not snap cards back
+    setFilters((prev) => ({ ...prev, sortBy: 'custom' }));
+
+    // 2. Map reordered items back to the master tasks state
     const reorderedIds = new Set(reorderedTasks.map((t) => t.id));
     const unaffectedTasks = tasks.filter((t) => !reorderedIds.has(t.id));
     setTasks([...reorderedTasks, ...unaffectedTasks]);

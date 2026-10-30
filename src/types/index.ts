@@ -8,7 +8,7 @@ export type TaskStatus = 'todo' | 'in-progress' | 'completed' ;
 
 //type for sorting option
 
-export type SortOption = 'dueDateAsc' | 'dueDateDesc' | 'priorityDesc' | 'createdDesc';
+export type SortOption = 'custom'|'dueDateAsc' | 'dueDateDesc' | 'priorityDesc' | 'createdDesc';
 
 // structure
 export interface Task {

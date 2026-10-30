@@ -9,8 +9,8 @@ interface TaskItemProps {
   onStatusChange: (id: string, nextStatus: TaskStatus) => void;
   onEdit: (task: Task) => void;
   onDragStart: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
-  onDragOver: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
-  onDragEnd: () => void;
+  onDragEnter: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
+  onDragEnd: (e: React.DragEvent<HTMLDivElement>) => void;
 }
 
 export const TaskItem: React.FC<TaskItemProps> = ({
@@ -20,12 +20,11 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   onStatusChange,
   onEdit,
   onDragStart,
-  onDragOver,
+  onDragEnter,
   onDragEnd,
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Badge styles based on priority
   const priorityStyles = {
     low: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
     medium: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-300 dark:border-amber-800',
@@ -44,8 +43,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     <div
       draggable
       onDragStart={(e) => onDragStart(e, index)}
-      onDragOver={(e) => onDragOver(e, index)}
+      onDragEnter={(e) => onDragEnter(e, index)}
       onDragEnd={onDragEnd}
+      onDragOver={(e) => e.preventDefault()}
       className={`group relative flex flex-col md:flex-row md:items-center justify-between p-4 mb-3 rounded-xl border bg-white dark:bg-slate-800 transition-all duration-200 cursor-grab active:cursor-grabbing hover:shadow-md ${
         isDeleting ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
       } ${
@@ -54,18 +54,18 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           : 'border-slate-200 dark:border-slate-700'
       }`}
     >
-      {/* Left section: drag handle, status toggle, details */}
       <div className="flex items-start gap-3 flex-1">
-        {/* Visual Drag Handle */}
+        {/* Grip Icon */}
         <div
           title="Drag to reorder"
-          className="text-slate-400 hover:text-slate-600 dark:text-slate-500 mt-1 select-none cursor-grab"
+          className="text-slate-400 hover:text-slate-600 dark:text-slate-500 mt-1 select-none cursor-grab text-lg"
         >
           ⋮⋮
         </div>
 
-        {/* Status Checkbox Button */}
+        {/* Quick status toggle */}
         <button
+          type="button"
           onClick={() => {
             const nextStatus: TaskStatus =
               task.status === 'completed'
@@ -101,14 +101,12 @@ export const TaskItem: React.FC<TaskItemProps> = ({
               {task.title}
             </h4>
 
-            {/* Priority Tag */}
             <span
               className={`text-xs px-2 py-0.5 rounded-full font-medium border uppercase tracking-wider ${priorityStyles}`}
             >
               {task.priority}
             </span>
 
-            {/* Overdue Alert */}
             {isOverdue && (
               <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 border border-red-300 dark:border-red-800">
                 Overdue
@@ -134,7 +132,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         </div>
       </div>
 
-      {/* Right section: Action Buttons */}
       <div className="flex items-center gap-2 mt-4 md:mt-0 pl-9 md:pl-0">
         <select
           value={task.status}
@@ -147,6 +144,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         </select>
 
         <button
+          type="button"
           onClick={() => onEdit(task)}
           className="px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
         >
@@ -154,6 +152,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         </button>
 
         <button
+          type="button"
           onClick={handleDelete}
           className="px-2.5 py-1.5 text-xs font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 rounded-lg transition-colors"
         >

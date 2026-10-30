@@ -125,6 +125,8 @@ export const filterAndSortTasks = (
     })
     .sort((a, b) => {
       switch (filters.sortBy) {
+        case 'custom':
+          return 0;
         case 'dueDateAsc':
           return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
         case 'dueDateDesc':

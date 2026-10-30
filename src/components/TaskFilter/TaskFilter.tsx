@@ -61,6 +61,7 @@ export const TaskFilter: React.FC<TaskFilterProps> = ({ filters, onChange, onRes
             onChange={handleSortChange}
             className="text-sm bg-slate-50/50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
+            <option value="custom">Custom (Drag & Drop)</option>
             <option value="createdDesc">Newest First</option>
             <option value="dueDateAsc">Due Date (Earliest)</option>
             <option value="dueDateDesc">Due Date (Latest)</option>
