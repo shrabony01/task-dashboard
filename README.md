@@ -16,31 +16,6 @@ Data Persistence & Portability: Tasks are automatically saved to localStorage. Y
 
 Light & Dark Theme: Toggle button in the header that switches 
 
-## Project Structure
-
-task-dashboard/
-├── src/
-│   ├── components/
-│   │   ├── Dashboard/
-│   │   │   └── Dashboard.tsx
-│   │   ├── TaskFilter/
-│   │   │   └── TaskFilter.tsx
-│   │   ├── TaskForm/
-│   │   │   └── TaskForm.tsx
-│   │   └── TaskList/
-│   │       ├── TaskItem.tsx
-│   │       └── TaskList.tsx
-│   ├── types/
-│   │   └── index.ts
-│   ├── utils/
-│   │   └── taskUtils.ts
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── index.css
-├── index.html
-├── package.json
-└── README.md
-
 ### SBA Reflection: 
 
 ## 1. How I Implemented React and TypeScript Features
