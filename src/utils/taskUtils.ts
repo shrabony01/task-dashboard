@@ -1,32 +1,70 @@
-import { Task, TaskFilterOptions, TaskFormData, FormErrors, TaskStatistics, PriorityLevel } from '../types';
+import type{
+  Task,
+  TaskFilterOptions,
+  TaskFormData,
+  FormErrors,
+  TaskStatistics,
+  PriorityLevel,
+} from '../types';
 
 const STORAGE_KEY = 'task_dashboard_data_v1';
 const THEME_KEY = 'task_dashboard_theme';
 
-export const loadTaskFromStorage = (): Task [] =>{
-    try{
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw) return getDefaultTasks();
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : getDefaultTasks();
-
-    }catch(error){
-        console.error('Failed to load tasks from localStorage', error);
-        return getDefaultTasks();
-    }
+const priorityWeight: Record<PriorityLevel, number> = {
+  high: 3,
+  medium: 2,
+  low: 1,
 };
 
-// saves task list to localstorage
+export const getDefaultTasks = (): Task[] => [
+  {
+    id: 'task-1',
+    title: 'Scaffold React & TypeScript Architecture',
+    description: 'Set up Vite, organize folder structure, and configure strict types.',
+    priority: 'high',
+    status: 'completed',
+    dueDate: '2026-10-25',
+    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+  },
+  {
+    id: 'task-2',
+    title: 'Implement Task Drag & Drop Reordering',
+    description: 'Enable native HTML5 drag and drop across the task list items.',
+    priority: 'high',
+    status: 'in-progress',
+    dueDate: '2026-10-31',
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+  },
+  {
+    id: 'task-3',
+    title: 'Write Reflection Document',
+    description: 'Document design choices, state patterns, and TS interfaces in REFLECTION.md.',
+    priority: 'medium',
+    status: 'todo',
+    dueDate: '2026-11-02',
+    createdAt: new Date().toISOString(),
+  },
+];
+
+export const loadTasksFromStorage = (): Task[] => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return getDefaultTasks();
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : getDefaultTasks();
+  } catch (error) {
+    console.error('Failed to load tasks from localStorage:', error);
+    return getDefaultTasks();
+  }
+};
 
 export const saveTasksToStorage = (tasks: Task[]): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
   } catch (error) {
-    console.error('Failed to save tasks to localStorage', error);
+    console.error('Failed to save tasks to localStorage:', error);
   }
 };
-
-// theme storage utilities
 
 export const loadThemeFromStorage = (): boolean => {
   const theme = localStorage.getItem(THEME_KEY);
@@ -38,56 +76,50 @@ export const saveThemeToStorage = (isDark: boolean): void => {
   localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
 };
 
-//Validates Task Form values and returns field-level error messages
 export const validateTaskForm = (formData: TaskFormData): FormErrors => {
   const errors: FormErrors = {};
 
   if (!formData.title.trim()) {
     errors.title = 'Title is required';
   } else if (formData.title.trim().length < 3) {
-    errors.title = 'Title must be at least 3 characters long';
+    errors.title = 'Title must be at least 3 characters';
   } else if (formData.title.trim().length > 80) {
-    errors.title = 'Title cannot exceed 80 characters';
+    errors.title = 'Title must not exceed 80 characters';
   }
 
   if (formData.description.trim().length > 300) {
-    errors.description = 'Description cannot exceed 300 characters';
+    errors.description = 'Description must not exceed 300 characters';
   }
 
   if (!formData.dueDate) {
     errors.dueDate = 'Due date is required';
   } else {
-    const date = new Date(formData.dueDate);
-    if (isNaN(date.getTime())) {
-      errors.dueDate = 'Invalid date format';
+    const parsedDate = new Date(formData.dueDate);
+    if (isNaN(parsedDate.getTime())) {
+      errors.dueDate = 'Please select a valid date';
     }
   }
 
   return errors;
 };
 
-//rank map for sorting operation
-const priorityWeight: Record<PriorityLevel, number> = {
-  high: 3,
-  medium: 2,
-  low: 1,
-};
-//Filters and sorts tasks based on user criteria
-export const filterAndSortTasks = (tasks: Task[], filters: TaskFilterOptions): Task[] => {
+export const filterAndSortTasks = (
+  tasks: Task[],
+  filters: TaskFilterOptions
+): Task[] => {
   return tasks
     .filter((task) => {
-      // Search matching title or description
-      const searchLower = filters.searchQuery.toLowerCase().trim();
+      const query = filters.searchQuery.toLowerCase().trim();
       const matchesSearch =
-        !searchLower ||
-        task.title.toLowerCase().includes(searchLower) ||
-        task.description.toLowerCase().includes(searchLower);
+        !query ||
+        task.title.toLowerCase().includes(query) ||
+        task.description.toLowerCase().includes(query);
 
-      // Status matching
-      const matchesStatus = filters.status === 'all' || task.status === filters.status;
+      const matchesStatus =
+        filters.status === 'all' || task.status === filters.status;
 
-      // Priority matching
-      const matchesPriority = filters.priority === 'all' || task.priority === filters.priority;
+      const matchesPriority =
+        filters.priority === 'all' || task.priority === filters.priority;
 
       return matchesSearch && matchesStatus && matchesPriority;
     })
@@ -106,7 +138,22 @@ export const filterAndSortTasks = (tasks: Task[], filters: TaskFilterOptions): T
     });
 };
 
-//formats a raw date string
+export const computeStatistics = (tasks: Task[]): TaskStatistics => {
+  const today = new Date().toISOString().split('T')[0];
+
+  return tasks.reduce(
+    (acc, task) => {
+      acc.total += 1;
+      if (task.status === 'completed') acc.completed += 1;
+      if (task.status === 'in-progress') acc.inProgress += 1;
+      if (task.status === 'todo') acc.todo += 1;
+      if (task.priority === 'high') acc.highPriority += 1;
+      if (task.dueDate < today && task.status !== 'completed') acc.overdue += 1;
+      return acc;
+    },
+    { total: 0, completed: 0, inProgress: 0, todo: 0, highPriority: 0, overdue: 0 }
+  );
+};
 
 export const formatDate = (dateStr: string): string => {
   if (!dateStr) return '';
@@ -117,35 +164,3 @@ export const formatDate = (dateStr: string): string => {
     day: 'numeric',
   });
 };
-
-// mock tasks for immediate evaluation
-
-export const getDefaultTasks = (): Task[] => [
-  {
-    id: 'task-1',
-    title: 'Set up Vite & Tailwind CSS Architecture',
-    description: 'Ensure TypeScript strict mode and dark mode classes are active.',
-    priority: 'high',
-    status: 'completed',
-    dueDate: '2026-10-25',
-    createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
-  },
-  {
-    id: 'task-2',
-    title: 'Implement Custom Drag & Drop Reordering',
-    description: 'Provide intuitive visual feedback when dragging tasks across positions.',
-    priority: 'high',
-    status: 'in-progress',
-    dueDate: '2026-10-31',
-    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-  },
-  {
-    id: 'task-3',
-    title: 'Write Technical Documentation and Reflection',
-    description: 'Document design choices, state patterns, and TS interfaces in REFLECTION.md',
-    priority: 'medium',
-    status: 'todo',
-    dueDate: '2026-11-02',
-    createdAt: new Date().toISOString(),
-  },
-];

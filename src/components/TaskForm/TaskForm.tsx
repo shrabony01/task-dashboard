@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { Task, TaskFormData, FormErrors, PriorityLevel, TaskStatus } from '../../types';
+import type { Task, TaskFormData, FormErrors} from '../../types';
 import { validateTaskForm } from '../../utils/taskUtils';
 
 interface TaskFormProps {
